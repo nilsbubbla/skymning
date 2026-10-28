@@ -1,7 +1,10 @@
 # Plan
-1. Inventera miljö och telefon; dokumentera design. Pågår.
-2. Implementera och testa ren spelkärna, kartor, AI och nätverk.
-3. Bygg Androidgränssnitt, rendering, kontroller, ljud och progression.
-4. Bygg APK och kör automatiska tester; testa på fysisk telefon så snart ADB är auktoriserat.
-5. Granska grafik, balans och felhantering, åtgärda största brister.
-6. Slutlig regression, leverans-APK och bygginstruktioner.
+1. Klart: miljö och telefon inventerade; design dokumenterad före implementation.
+2. Klart: spelkärna, kartor, AI och LAN implementerade och regressionstestade.
+3. Klart: Androidgränssnitt, rendering, multitouch, ljud och progression.
+4. Klart: fysisk installation, helrundor, livscykel, processåterställning och Wi-Fi i båda rollerna.
+5. Klart inom miljön: grafik granskad, balans simulerad och hittade blockerande fel rättade.
+6. Klart: ren release-ombyggnad, slutregression av leverans-APK, signatur/hash och bygginstruktioner.
+
+## Kvarstående extern verifiering
+Två fysiska Androidtelefoner samtidigt, äldre modeller/OS, långvarig mänsklig speltestning och subjektiv ljud-/vibrationskvalitet. Dessa är dokumenterade som ej verifierade. Se TEST_REPORT.md.

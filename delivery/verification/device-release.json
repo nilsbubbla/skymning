@@ -1,0 +1,147 @@
+{
+  "started": "2026-10-28T20:50:06.2430469+01:00",
+  "status": "SMOKE_PASS",
+  "serial": "32201FDH3000M5",
+  "physical": true,
+  "apk": "C:\\Users\\Nils\\Desktop\\Kurragömma\\delivery\\Skymning-1.0.apk",
+  "checkpoints": [
+    {
+      "name": "01-menu",
+      "status": "PASS",
+      "detail": "Process 26262 is running and activity is resumed.",
+      "at": "2026-10-28T20:50:10.8056993+01:00"
+    },
+    {
+      "name": "01-menu state",
+      "status": "PASS",
+      "detail": "screen=menu",
+      "at": "2026-10-28T20:50:13.7147341+01:00"
+    },
+    {
+      "name": "Touch mapping",
+      "status": "PASS",
+      "detail": "Exact Canvas transform from accessibility marker and View bounds.",
+      "at": "2026-10-28T20:50:13.7396245+01:00"
+    },
+    {
+      "name": "02-training",
+      "status": "PASS",
+      "detail": "Process 26262 is running and activity is resumed.",
+      "at": "2026-10-28T20:50:15.0852023+01:00"
+    },
+    {
+      "name": "02-training state",
+      "status": "PASS",
+      "detail": "screen=game",
+      "at": "2026-10-28T20:50:17.8730979+01:00"
+    },
+    {
+      "name": "04-pause state",
+      "status": "PASS",
+      "detail": "screen=game",
+      "at": "2026-10-28T20:50:25.6598225+01:00"
+    },
+    {
+      "name": "04-pause pause state",
+      "status": "PASS",
+      "detail": "paused=true",
+      "at": "2026-10-28T20:50:25.6670460+01:00"
+    },
+    {
+      "name": "05-resume",
+      "status": "PASS",
+      "detail": "Process 26262 is running and activity is resumed.",
+      "at": "2026-10-28T20:50:29.5809680+01:00"
+    },
+    {
+      "name": "05-resume state",
+      "status": "PASS",
+      "detail": "screen=game",
+      "at": "2026-10-28T20:50:32.3404284+01:00"
+    },
+    {
+      "name": "05-resume pause state",
+      "status": "PASS",
+      "detail": "paused=true",
+      "at": "2026-10-28T20:50:32.3408207+01:00"
+    },
+    {
+      "name": "05b-process-recreation",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:50:35.4965814+01:00"
+    },
+    {
+      "name": "05b-process-recreation state",
+      "status": "PASS",
+      "detail": "screen=game",
+      "at": "2026-10-28T20:50:38.3138265+01:00"
+    },
+    {
+      "name": "05b-process-recreation pause state",
+      "status": "PASS",
+      "detail": "paused=true",
+      "at": "2026-10-28T20:50:38.3141589+01:00"
+    },
+    {
+      "name": "06-rapid-input",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:50:39.7550723+01:00"
+    },
+    {
+      "name": "06-rapid-input pause state",
+      "status": "PASS",
+      "detail": "paused=false",
+      "at": "2026-10-28T20:50:42.5596413+01:00"
+    },
+    {
+      "name": "round-1",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:51:08.7401115+01:00"
+    },
+    {
+      "name": "round-2",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:51:34.9132072+01:00"
+    },
+    {
+      "name": "round-3",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:52:01.1048942+01:00"
+    },
+    {
+      "name": "round-4",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:52:27.2847364+01:00"
+    },
+    {
+      "name": "round-5",
+      "status": "PASS",
+      "detail": "Process 26684 is running and activity is resumed.",
+      "at": "2026-10-28T20:52:53.4625506+01:00"
+    },
+    {
+      "name": "07-round-end state",
+      "status": "PASS",
+      "detail": "screen=result",
+      "at": "2026-10-28T20:52:56.2581386+01:00"
+    },
+    {
+      "name": "Crash/ANR scan",
+      "status": "PASS",
+      "detail": "No package crash or ANR matched captured logcat.",
+      "at": "2026-10-28T20:52:58.8199693+01:00"
+    }
+  ],
+  "limitations": [
+    "ADB gestures do not validate simultaneous multi-touch or subjective game feel.",
+    "Human visual inspection and physical multi-touch/game-feel checks remain necessary."
+  ],
+  "error": "",
+  "finished": "2026-10-28T20:52:58.8274254+01:00"
+}

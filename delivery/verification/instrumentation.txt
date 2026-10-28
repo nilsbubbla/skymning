@@ -1,0 +1,17 @@
+real input: simultaneous joystick + ability, release: 0 cumulative failures
+real input: offline pause and resume: 0 cumulative failures
+real input: town selection and seeker hide-phase freeze: 0 cumulative failures
+CONTROLLED FIXTURE: capture, seeker victory, once-only reward and replay: 0 cumulative failures
+CONTROLLED FIXTURE: caught hider loses despite teammate survival: 0 cumulative failures
+CONTROLLED FIXTURE: surviving hider victory: 0 cumulative failures
+OFFSCREEN LAYOUT: menus and maps at three aspect ratios: 0 cumulative failures
+
+PASS real input: simultaneous joystick + ability, release
+PASS real input: offline pause and resume
+PASS real input: town selection and seeker hide-phase freeze
+PASS CONTROLLED FIXTURE: capture, seeker victory, once-only reward and replay
+PASS CONTROLLED FIXTURE: caught hider loses despite teammate survival
+PASS CONTROLLED FIXTURE: surviving hider victory
+PASS OFFSCREEN LAYOUT: menus and maps at three aspect ratios
+PASS DeviceRegression: 7 cases, 83 assertions, 0 failures
+

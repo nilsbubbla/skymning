@@ -1,0 +1,11 @@
+Core regression 2026-10-28T20:49:22.8762570+01:00
+Running se.nils.skymning.GameTest
+Map 0: 5 / 5 bots caught, seekerWon=true
+Map 1: 5 / 5 bots caught, seekerWon=true
+Balance map 0: mean 80.7s including hide, 5.00/5 captured, seeker wins 8/8
+Balance map 1: mean 86.2s including hide, 4.88/5 captured, seeker wins 7/8
+Desktop benchmark: 10,000 ticks 94.7ms, mean 0.0095ms/tick (not phone FPS)
+PASS GameTest: 737 assertions
+Running se.nils.skymning.LanTest
+LanTest: 26 checks passed
+PASS: core and loopback LAN regression tests.

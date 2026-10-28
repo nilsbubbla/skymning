@@ -15,7 +15,7 @@ Windows, Java 17.0.19, Gradle 9.4.1, Android Gradle Plugin 9.2.1, SDK 36. Fysisk
 | Androidinstrumentering | 7 fall, 83 assertions, 0 fel | delivery/verification/instrumentation.txt |
 | Android lint | 0 fel, 6 varningar | delivery/verification/lint.txt |
 | Första fysisk helrunda | SMOKE_PASS | test-output/device-20261028-203045/report.json |
-| Slutlig release-regression | Pågår; paus och processåterställning godkända | test-output/device-20261028-205006/report.json |
+| Slutlig release-regression | SMOKE_PASS, 22 kontrollpunkter | delivery/verification/device-release.json |
 
 Kärntesterna täcker faser, vinst/förlust, lokal fångad spelares förlust trots överlevande lagkamrater, kollisioner, sikt, spurtens risk/nedkylning, puls, diagonal input, gränser och ogiltig input. BFS verifierar att samtliga gångbara rutnätsceller på båda kartorna är sammanhängande. Snapshot-tester provar trunkering, fel version och NaN/±Infinity i samtliga flyttalsfält utan partiell tillståndsändring.
 
@@ -24,6 +24,12 @@ Kärntesterna täcker faser, vinst/förlust, lokal fångad spelares förlust tro
 LAN-tester täcker spelar-ID, tvåvägstrafik, riktad sändning, full lobby, återanslutning, avbrott, protokollversion, ogiltiga ramlängder och heartbeat efter 12,5 sekunders inaktivitet.
 
 ## Fysisk telefon
+Slutlig körning 20:50–20:52 på leverans-APK:n passerade hela flödet inklusive processåterställning (PID ändrades från 26262 till 26684, matchen åter i pausat läge) och helrunda till resultat. Ingen krasch eller ANR i slutloggen. Installerad base.apk hämtades och hade samma SHA-256 som leveransfilen: `0e18780b114395b88670d76b05002801f95378c55ac464a8a87712e01ed84efe`.
+
+Efter slutrundan verifierades Androids bakåtknapp från regler till meny och sparad ljudinställning över kallstart. Ljud återställdes till på. Svepgestens beteende är inte separat godkänt i telefonens nuvarande navigeringsläge.
+
+Frame-statistik efter processåterställningen: 8 589 rutor på cirka 143 sekunder, ungefär 60 rutor/s i genomsnitt. Android rapporterade 4 deadline-missar/0,05 % janky frames. Det äldre legacy-måttet rapporterade samtidigt 86,48 % och 95:e percentilen för rapporterad frame duration var 24 ms. Mätetalen är inte identiska och ska inte tolkas som garanterad 16,7 ms end-to-end-latens. GPU:s 95:e percentil var 3 ms. TOTAL PSS cirka 103 MiB. Rådata i delivery/verification/frames.txt och memory.txt.
+
 ADB-smoke styrde meny, gömmarträning, joystick, förmåga, paus, Fortsätt, Home/appväxling, återgång och snabba upprepade tryck. En full runda nådde resultat. Ingen paketrelaterad krasch eller ANR hittades i den godkända körningens logcat.
 
 Instrumentering skickade riktiga MotionEvent med två oberoende pointer-ID:n. Rörelse samtidigt med spurt, fortsatt rörelse efter förmågefingrets släpp och stopp efter joysticksläpp verifierades. Paus frös tiden. Stad och sökarroll valdes via menytryck; sökaren kunde inte röra sig eller se gömmare under gömfasen.
