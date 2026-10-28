@@ -1,5 +1,7 @@
 # Skymning
 
+[Ladda ner senaste Android-APK](https://github.com/nilsbubbla/skymning/releases/latest) · [GitHub-projekt](https://github.com/nilsbubbla/skymning)
+
 Färdig lokal leverans: `delivery/Skymning-1.0.apk`. Installerad och regressionstestad på Pixel 7 Pro. Kontrollsumma och testbevis finns i samma mapp. Begränsningar redovisas i `TEST_REPORT.md`.
 
 Ett svenskt Androidspel om kurragömma för 1–6 spelare. Göm dig under 20 sekunder, överlev 100 sekunders jakt eller hitta alla fem gömmare. Spela offline med bots eller tillsammans på samma Wi-Fi.
