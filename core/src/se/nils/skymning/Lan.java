@@ -99,7 +99,9 @@ public final class Lan implements AutoCloseable {
         } catch (IOException e) {
             try { socket.close(); } catch (IOException ignored) { }
             lan.close();
-            throw new IOException("Kunde inte ansluta. Kontrollera IP, samma Wi-Fi och att rummet är öppet. " + e.getMessage(), e);
+            String detail=e.getMessage();
+            if(detail!=null&&(detail.startsWith("Rummet är fullt")||detail.startsWith("Spelets version")))throw new IOException(detail,e);
+            throw new IOException("Kunde inte ansluta. Kontrollera IP-adressen, att rummet är öppet och att ni använder samma Wi-Fi.", e);
         }
     }
 

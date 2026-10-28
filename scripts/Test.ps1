@@ -169,7 +169,7 @@ try {
         "Density: $(Invoke-Adb shell wm density)"
     )
     $deviceInfo | Set-Content -Encoding utf8 (Join-Path $runRoot 'device-info.txt')
-    Invoke-Adb install -r $ApkPath | Set-Content -Encoding utf8 (Join-Path $runRoot 'install.txt')
+    & (Join-Path $PSScriptRoot 'Install.ps1') -ApkPath $ApkPath -Serial $script:selectedSerial -OutputDirectory $runRoot
     Invoke-Adb shell am force-stop $package | Out-Null
     # Keep a timestamp for filtering; do not clear unrelated device logs.
     $logSince = (Invoke-Adb shell date '+%m-%d\ %H:%M:%S.000').Trim()
@@ -210,6 +210,17 @@ try {
     $resumeXml = Capture '05-resume'
     Assert-Screen $resumeXml 'game' '05-resume'
     Assert-Paused $resumeXml $true '05-resume'
+    # Simulate OS process reclamation while backgrounded, retaining the task's saved state.
+    Invoke-Adb shell input keyevent 3 | Out-Null
+    Start-Sleep -Seconds 1
+    Invoke-Adb shell am kill $package | Out-Null
+    Start-Sleep -Milliseconds 500
+    Invoke-Adb shell am start -W -n $component | Out-Null
+    Start-Sleep -Seconds 1
+    Assert-Running '05b-process-recreation'
+    $recreatedXml = Capture '05b-process-recreation'
+    Assert-Screen $recreatedXml 'game' '05b-process-recreation'
+    Assert-Paused $recreatedXml $true '05b-process-recreation'
     Tap 640 335
     for ($i = 0; $i -lt 12; $i++) { Tap 1148 583 }
     Assert-Running '06-rapid-input'

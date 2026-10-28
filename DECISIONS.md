@@ -9,3 +9,7 @@
 - Release signeras med lokal Android-utvecklingsnyckel för direkt installation; butikspublicering ingår inte.
 - Nätverksgästers grafik interpoleras mellan auktoritativa uppdateringar. Regler och fångster avgörs alltid av värden.
 - AI:s patrullminne uppdateras vid 5 Hz, medan rörelse och fångst simuleras vid 60 Hz. Detta minskade desktopkärnans CPU-tid utan att sänka kollisionsupplösningen.
+- Spurt ökar tillfälligt avståndet där en gömmare kan upptäckas med fri sikt, ett val mellan fart och diskretion.
+- Android 33+ använder native OnBackInvokedDispatcher; äldre versioner har onBackPressed som reserv.
+- Appens fönster önskar 60 Hz för jämn rendering och lägre energiförbrukning. Systemet kan välja annat.
+- Play Protect frågade om frivillig uppladdning av egenutvecklad APK. "Skicka inte" valdes enbart för Skymning; inga skyddsinställningar ändrades. Installationsskriptet hanterar denna kända dialog med tidsgräns, inte okända säkerhetsdialoger.

@@ -29,6 +29,9 @@ final class GameView extends View implements Choreographer.FrameCallback {
     private String stateMarker="";
     private final float[] renderX=new float[6],renderY=new float[6];
     private boolean renderReady;
+    private final boolean[] seenCaught=new boolean[6];
+    private final float[] captureFx=new float[6];
+    private int countdown=-1;
     private final int[] colors={PEACH,MINT,0xffb4c9ff,0xffffd28c,0xffe0b0df,0xff9fdde6};
     private static class Button { final RectF r; final Runnable run; Button(float x,float y,float w,float h,Runnable run){r=new RectF(x,y,x+w,y+h);this.run=run;} }
 
@@ -54,7 +57,7 @@ final class GameView extends View implements Choreographer.FrameCallback {
     private void start(int id){
         localId=id;game=new Game(map,System.nanoTime());game.players[id].human=true;
         if(lan!=null)for(int peer:lan.peers())game.players[peer].human=true;
-        screen="game";paused=false;awarded=false;renderReady=false;previousPhase=0;previousCaught=0;accum=netClock=0;camX=game.players[id].x;camY=game.players[id].y;resetInput();sound.play(0);
+        screen="game";paused=false;awarded=false;renderReady=false;Arrays.fill(seenCaught,false);Arrays.fill(captureFx,0);countdown=-1;previousPhase=0;previousCaught=0;accum=netClock=0;camX=game.players[id].x;camY=game.players[id].y;resetInput();sound.play(0);
     }
     private void host(){
         if(busy)return;busy=true;int generation=++networkGeneration;
@@ -95,6 +98,8 @@ final class GameView extends View implements Choreographer.FrameCallback {
                 accum+=dt;while(accum>=1f/60f){game.update(1f/60f);accum-=1f/60f;}
             }
             int caught=0;for(Game.Player a:game.players)if(a.caught)caught++;
+            for(Game.Player a:game.players){if(a.caught&&!seenCaught[a.id])captureFx[a.id]=.7f;seenCaught[a.id]=a.caught;captureFx[a.id]=Math.max(0,captureFx[a.id]-dt);}
+            int remaining=(int)Math.ceil(game.time);if(game.phase==0&&remaining<=3&&remaining!=countdown&&!paused){countdown=remaining;sound.play(0);}
             if(game.phase!=previousPhase){sound.play(game.phase==2?3:1);buzz();previousPhase=game.phase;}
             if(caught>previousCaught){sound.play(2);buzz();previousCaught=caught;}
             if(game.phase==2&&!awarded){awarded=true;boolean won=localId==0?game.seekerWon:!game.players[localId].caught;rounds++;if(won)wins++;xp+=won?100:35;prefs.edit().putInt("rounds",rounds).putInt("wins",wins).putInt("xp",xp).apply();}
@@ -113,7 +118,7 @@ final class GameView extends View implements Choreographer.FrameCallback {
         c.save();c.translate(offsetX,offsetY);c.scale(uiScale,uiScale);c.clipRect(0,0,1280,720);
         if(screen.equals("game")&&game!=null)drawGame(c);
         else{drawBackdrop(c);switch(screen){case "wifi":drawWifi(c);break;case "lobby":drawLobby(c);break;case "rules":drawRules(c);break;case "settings":drawSettings(c);break;default:drawMenu(c);}}
-        if(noticeTime>0){box(c,160,650,960,52,0xf0223943,16);text(c,notice,640,682,19,WHITE,true);}
+        if(noticeTime>0){box(c,160,626,960,78,0xf0223943,16);p.setTextSize(19);p.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));ArrayList<String> lines=new ArrayList<>();String row="";for(String word:notice.split(" ")){if(p.measureText(row+" "+word)>900&&!row.isEmpty()){lines.add(row);row=word;}else row=row.isEmpty()?word:row+" "+word;}if(!row.isEmpty())lines.add(row);for(int i=0;i<Math.min(2,lines.size());i++)text(c,lines.get(i),640,(lines.size()==1?672:656)+i*27,19,WHITE,true);}
         c.restore();
     }
     private void color(int color){p.setShader(null);p.setColor(color);p.setStyle(Paint.Style.FILL);}
@@ -137,14 +142,14 @@ final class GameView extends View implements Choreographer.FrameCallback {
         button(c,"Leta  ·  träning",65,379,440,64,false,()->start(0));
         button(c,"Spela med vänner",65,458,440,64,false,()->screen="wifi");
         button(c,"Så spelar du",65,546,212,56,false,()->screen="rules");button(c,"Inställningar",291,546,214,56,false,()->screen="settings");
-        text(c,rank()+"  ·  "+wins+" segrar  ·  "+rounds+" rundor",65,650,19,MUTED,false);
+        text(c,rank()+"  ·  "+wins+(wins==1?" seger":" segrar")+"  ·  "+rounds+(rounds==1?" runda":" rundor"),65,650,19,MUTED,false);
         box(c,575,230,640,372,0xe01a3038,24);bold(c,"Välj ditt gömställe",605,277,29,WHITE);
         mapCard(c,605,302,275,235,0,"Skogsgläntan","Dungar & slingrande stigar");mapCard(c,906,302,275,235,1,"Gamla stan","Gränder & tysta innergårdar");
         text(c,"20 sekunder att gömma sig  /  100 sekunder att leta",605,573,19,MUTED,false);
     }
     private String rank(){return xp<300?"Nyfiken stigfinnare":xp<1000?"Skuggspanare":xp<2500?"Skogens viskning":"Skymningsmästare";}
     private void mapCard(Canvas c,float x,float y,float w,float h,int id,String title,String subtitle){
-        box(c,x-3,y-3,w+6,h+6,map==id?MINT:0xff30464e,18);box(c,x,y,w,h,INK,16);c.save();c.clipRect(x,y,x+w,y+142);box(c,x,y,w,142,id==0?0xff325d4c:0xff565b5c,0);
+        box(c,x-3,y-3,w+6,h+6,map==id?MINT:0xff30464e,18);box(c,x,y,w,h,INK,16);c.save();Path cardClip=new Path();cardClip.addRoundRect(new RectF(x,y,x+w,y+h),16,16,Path.Direction.CW);c.clipPath(cardClip);c.clipRect(x,y,x+w,y+142);box(c,x,y,w,142,id==0?0xff325d4c:0xff565b5c,0);
         if(id==0){line(c,x-10,y+130,x+w,y+20,0xff928564,26);for(int i=0;i<7;i++)tree(c,x+25+i*41,y+25+(i%3)*35,27,0xff244c40,0xff4d8061);}else{for(int i=0;i<4;i++){box(c,x+14+i*68,y+12,47,80,0xffb7a38c,5);box(c,x+18+i*68,y+17,39,48,i%2==0?0xff8d6258:0xff687f85,3);for(int j=0;j<2;j++)box(c,x+24+i*68+j*17,y+72,9,12,0xfff1dbaa,2);}line(c,x,y+116,x+w,y+116,0xff9c9d91,2);}c.restore();
         bold(c,title,x+15,y+177,25,WHITE);text(c,subtitle,x+15,y+207,16,MUTED,false);if(map==id)circle(c,x+w-23,y+20,7,MINT);
         buttons.add(new Button(x,y,w,h,()->{map=id;prefs.edit().putInt("map",map).apply();sound.play(0);}));
@@ -152,7 +157,7 @@ final class GameView extends View implements Choreographer.FrameCallback {
     private void heading(Canvas c,String title,String subtitle){button(c,"‹  Tillbaka",55,40,170,54,false,()->{leave();screen="menu";});bold(c,title,90,170,46,WHITE);text(c,subtitle,92,215,23,MUTED,false);}
     private void drawWifi(Canvas c){heading(c,"Tillsammans i skymningen","2–6 spelare på samma Wi-Fi. Datorer fyller tomma platser.");box(c,90,265,1100,300,0xe01a3038,24);bold(c,"En skapar rummet. Resten ansluter.",125,318,29,WHITE);text(c,"Värden letar. Vännerna gömmer sig. Ingen internetanslutning behövs.",125,360,22,MUTED,false);button(c,busy?"Ansluter…":"Skapa rum",125,410,475,70,true,()->{if(!busy)host();});button(c,"Anslut till vän",625,410,530,70,false,()->{if(!busy)activity.askAddress();});text(c,"Gästnät kan blockera kontakt mellan telefoner. Prova då ett vanligt hemnät.",125,530,19,MUTED,false);}
     private void drawLobby(Canvas c){heading(c,lan!=null&&lan.hosting?"Ditt rum är öppet":"Du är med!",lan!=null&&lan.hosting?"Dela adressen nedan med dina vänner.":"Du gömmer dig. Värden startar rundan när alla är redo.");box(c,90,264,1100,320,0xe01a3038,24);text(c,"RUMMETS ADRESS",125,307,17,MINT,false);bold(c,address,125,352,32,WHITE);text(c,"Bana: "+(map==0?"Skogsgläntan":"Gamla stan"),125,404,23,WHITE,false);int total=lan==null?1:lan.peers().length+1;text(c,lan!=null&&lan.hosting?total+" av 6 spelare anslutna  ·  "+(6-total)+" datorer":"Ansluten som gömmare "+localId,125,443,23,MUTED,false);if(lan!=null&&lan.hosting)button(c,"Starta rundan",125,483,480,64,true,()->start(0));else text(c,"Väntar på start…",125,524,26,MINT,false);}
-    private void drawRules(Canvas c){heading(c,"Ett gömställe. Ett försprång.","Lär dig grunderna på en minut.");String[] titles={"01   Göm dig","02   Läs terrängen","03   Vänd på jakten"};String[][] lines={{"Du har 20 sekunder innan sökaren släpps.","Dra styrspaken för att röra dig.","Överlev sökfasen för att vinna."},{"Träd, stenar och hus blockerar sikten.","Sökaren fångar genom att komma nära.","Dra dig undan när sökaren närmar sig."},{"Spurt ger fart men lämnar synliga spår.","Sökarens puls visar riktningar till gömmare.","Förmågorna behöver tid att laddas om."}};for(int i=0;i<3;i++){float x=80+i*410;box(c,x,270,385,265,0xe01a3038,22);bold(c,titles[i],x+22,318,26,i==0?MINT:WHITE);for(int j=0;j<3;j++)text(c,lines[i][j],x+22,369+j*41,17,MUTED,false);}text(c,"Fångad? Följ resten av jakten. I träning kan du pausa när som helst.",90,587,23,WHITE,false);button(c,"Jag är redo",90,620,300,60,true,()->screen="menu");}
+    private void drawRules(Canvas c){heading(c,"Ett gömställe. Ett försprång.","Lär dig grunderna på en minut.");String[] titles={"01   Göm dig","02   Läs terrängen","03   Vänd på jakten"};String[][] lines={{"Du har 20 sekunder innan sökaren släpps.","Dra styrspaken för att röra dig.","Överlev sökfasen för att vinna."},{"Träd, stenar och hus blockerar sikten.","Sökaren fångar genom att komma nära.","Dra dig undan när sökaren närmar sig."},{"Spurt ger fart men lämnar synliga spår.","Sökarens puls visar riktningar till gömmare.","Förmågorna behöver tid att laddas om."}};for(int i=0;i<3;i++){float x=65+i*409;box(c,x,270,385,265,0xe01a3038,22);bold(c,titles[i],x+22,318,26,i==0?MINT:WHITE);for(int j=0;j<3;j++)text(c,lines[i][j],x+22,369+j*41,17,MUTED,false);}text(c,"Fångad? Följ resten av jakten. I träning kan du pausa när som helst.",90,587,23,WHITE,false);button(c,"Jag är redo",90,620,300,60,true,()->screen="menu");}
     private void drawSettings(Canvas c){heading(c,"Gör dig hemmastadd","Inställningarna sparas på den här telefonen.");button(c,"Ljud: "+(soundOn?"på":"av"),90,280,510,72,soundOn,()->{soundOn=!soundOn;sound.enabled=soundOn;prefs.edit().putBoolean("sound",soundOn).apply();});button(c,"Vibration: "+(vibrate?"på":"av"),90,370,510,72,vibrate,()->{vibrate=!vibrate;prefs.edit().putBoolean("vibrate",vibrate).apply();});box(c,650,280,540,250,0xe01a3038,22);bold(c,rank(),680,331,27,MINT);text(c,xp+" erfarenhet  ·  "+wins+" segrar",680,382,24,WHITE,false);text(c,"Seger +100  /  Spelad runda +35",680,430,21,MUTED,false);text(c,"Ranger är kosmetiska. Alla spelar på lika villkor.",680,480,18,MUTED,false);text(c,"Skymning 1.0  ·  Egen grafik och syntetiserade ljud",90,600,21,MUTED,false);}
     private float worldScale(){return 0.92f;}
     private float cameraX(){return Math.max(640/worldScale(),Math.min(Game.WIDTH-640/worldScale(),camX));}
@@ -161,6 +166,7 @@ final class GameView extends View implements Choreographer.FrameCallback {
         c.save();c.clipRect(0,92,1280,720);float s=worldScale(),cx=cameraX(),cy=cameraY();c.translate(640-cx*s,405-cy*s);c.scale(s,s);drawWorld(c);
         int viewer=game.players[localId].caught?0:localId;
         for(Game.Player a:game.players){if(a.caught)continue;if(a.id==localId||game.visible(viewer,a.id)||game.phase==2)drawPlayer(c,a,a.id==localId);}
+        for(int i=1;i<6;i++)if(captureFx[i]>0){Game.Player a=game.players[i];float t=1-captureFx[i]/.7f;color(Color.argb((int)(200*(1-t)),255,183,140));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(4);c.drawCircle(a.x,a.y,24+t*65,p);p.setStyle(Paint.Style.FILL);for(int j=0;j<8;j++){double angle=j*Math.PI/4;circle(c,a.x+(float)Math.cos(angle)*(20+t*70),a.y+(float)Math.sin(angle)*(20+t*70),4*(1-t),PEACH);}}
         if(localId==0&&game.phase==1){Game.Player me=game.players[0];color(0);p.setShader(new RadialGradient(me.x,me.y,390,new int[]{0x00101f29,0x00101f29,0xb0101f29},new float[]{0,.65f,1},Shader.TileMode.CLAMP));c.drawRect(0,0,1600,1000,p);p.setShader(null);drawPlayer(c,me,true);if(game.pulse>0){color(0x889fe7c8);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);c.drawCircle(me.x,me.y,(2.2f-game.pulse)*500,p);p.setStyle(Paint.Style.FILL);for(int i=1;i<6;i++)if(!game.players[i].caught){Game.Player a=game.players[i];double angle=Math.atan2(a.y-me.y,a.x-me.x);float xx=me.x+(float)Math.cos(angle)*130,yy=me.y+(float)Math.sin(angle)*130;circle(c,xx,yy,8,PEACH);}}}
         c.restore();
         box(c,0,0,1280,94,INK,0);text(c,"SKYMNING",32,38,16,MINT,false);bold(c,localId==0?"Du letar":"Du gömmer dig",30,72,27,WHITE);
@@ -192,15 +198,15 @@ final class GameView extends View implements Choreographer.FrameCallback {
         if(a.id==0){box(c,a.x-15,a.y-24,30,8,0xfff7cf91,3);}else if(own){text(c,"DU",a.x,a.y-35,13,WHITE,true);}
         c.restore();
     }
-    private void minimap(Canvas c){float x=1040,y=112,w=200,h=125;box(c,x-5,y-5,w+10,h+10,0xcc101f29,10);box(c,x,y,w,h,0xff344d46,5);for(Game.Block b:game.blocks)box(c,x+b.x/8,y+b.y/8,b.w/8,b.h/8,0xff698174,2);Game.Player me=game.players[localId];circle(c,x+me.x/8,y+me.y/8,4,colors[localId]);text(c,game.map==0?"SKOGSGLÄNTAN":"GAMLA STAN",1140,259,13,MUTED,true);}
-    private void controls(Canvas c){circle(c,126,583,86,0x99101f29);circle(c,126,583,62,0x443e6969);circle(c,126+stickX*48,583+stickY*48,33,0xc09fe7c8);text(c,"RÖRELSE",126,699,13,MUTED,true);Game.Player me=game.players[localId];boolean ready=me.cooldown<=0&&(localId!=0||game.phase==1);circle(c,1148,583,71,ready?MINT:0xff304a52);text(c,ready?(localId==0?"PULS":"SPURT"):""+(int)Math.ceil(me.cooldown),1148,591,24,ready?INK:MUTED,true);text(c,localId==0?"AVSLÖJA RIKTNING":"FART MED SPÅR",1148,683,13,MUTED,true);}
+    private void minimap(Canvas c){float x=1040,y=112,w=200,h=125;box(c,x-5,y-5,w+10,h+10,0xcc101f29,10);box(c,x,y,w,h,0xff344d46,5);for(Game.Block b:game.blocks)box(c,x+b.x/8,y+b.y/8,b.w/8,b.h/8,0xff698174,2);Game.Player me=game.players[game.players[localId].caught?0:localId];circle(c,x+me.x/8,y+me.y/8,4,colors[me.id]);box(c,1035,240,210,30,0xdd101f29,8);text(c,game.map==0?"SKOGSGLÄNTAN":"GAMLA STAN",1140,259,13,MUTED,true);}
+    private void controls(Canvas c){circle(c,126,583,86,0x99101f29);circle(c,126,583,62,0x443e6969);circle(c,126+stickX*48,583+stickY*48,33,0xc09fe7c8);box(c,66,676,120,29,0xcc101f29,10);text(c,"RÖRELSE",126,696,13,WHITE,true);Game.Player me=game.players[localId];boolean ready=me.cooldown<=0&&(localId!=0||game.phase==1);circle(c,1148,583,71,ready?MINT:0xff304a52);text(c,ready?(localId==0?"PULS":"SPURT"):(localId==0&&game.phase==0?"VÄNTA":""+(int)Math.ceil(me.cooldown)),1148,591,24,ready?INK:MUTED,true);box(c,1033,661,230,29,0xcc101f29,10);text(c,localId==0?"AVSLÖJA RIKTNING":"FART MED SPÅR",1148,681,13,WHITE,true);}
     private void dim(Canvas c){box(c,0,0,1280,720,0xcc091720,0);}
     private void drawPause(Canvas c){dim(c);box(c,390,160,500,400,PANEL,26);text(c,"En stunds andrum",640,220,34,WHITE,true);text(c,lan==null?"Rundan är pausad.":"Wi-Fi-rundan fortsätter i bakgrunden.",640,266,21,MUTED,true);button(c,"Fortsätt",430,302,420,66,true,()->paused=false);button(c,"Så spelar du",430,384,420,60,false,()->{toast(localId==0?"Rör dig nära för att fånga. Puls visar riktningar.":"Håll dig bakom hinder. Spurt ger fart och synliga spår.");paused=false;});button(c,"Lämna rundan",430,460,420,60,false,()->{leave();game=null;screen="menu";paused=false;});}
     private void drawResult(Canvas c){dim(c);boolean won=localId==0?game.seekerWon:!game.players[localId].caught;box(c,340,115,600,490,PANEL,28);text(c,won?"VACKERT SPELAT":"EN NY CHANS VÄNTAR",640,169,17,MINT,true);text(c,won?(localId==0?"Alla hittade!":"Du förblev gömd!"):(localId==0?"Någon kom undan":"Du blev hittad"),640,230,40,WHITE,true);text(c,won?"Skymningen var på din sida.":"Nästa gömställe kan bli ditt bästa.",640,278,23,MUTED,true);text(c,(won?"+100":"+35")+" erfarenhet  ·  "+rank(),640,337,23,MINT,true);if(lan==null||lan.hosting)button(c,"En runda till",390,382,500,67,true,()->start(localId));else text(c,"Väntar på att värden startar nästa runda…",640,420,21,WHITE,true);button(c,"Till huvudmenyn",390,468,500,62,false,()->{leave();game=null;screen="menu";});}
     @Override public boolean onTouchEvent(android.view.MotionEvent e){
         float x=(e.getX(e.getActionIndex())-offsetX)/uiScale,y=(e.getY(e.getActionIndex())-offsetY)/uiScale;int id=e.getPointerId(e.getActionIndex()),action=e.getActionMasked();
         if(action==MotionEvent.ACTION_DOWN||action==MotionEvent.ACTION_POINTER_DOWN){
-            if(screen.equals("game")&&game!=null&&game.phase!=2&&!paused&&!game.players[localId].caught){if(x<280&&y>410&&joystick==-1){joystick=id;stick(x,y);return true;}if(x>1030&&y>480){other=id;if(game.players[localId].cooldown<=0){ability=true;sound.play(1);buzz();}return true;}}
+            if(screen.equals("game")&&game!=null&&game.phase!=2&&!paused&&!game.players[localId].caught){if(x<280&&y>410&&joystick==-1){joystick=id;stick(x,y);return true;}if(x>1030&&y>480){other=id;if(game.players[localId].cooldown<=0&&(localId!=0||game.phase==1)){ability=true;sound.play(1);buzz();}return true;}}
             for(int i=buttons.size()-1;i>=0;i--)if(buttons.get(i).r.contains(x,y)){buttons.get(i).run.run();performClick();return true;}
         }else if(action==MotionEvent.ACTION_MOVE){int ix=e.findPointerIndex(joystick);if(ix>=0)stick((e.getX(ix)-offsetX)/uiScale,(e.getY(ix)-offsetY)/uiScale);}
         else if(action==MotionEvent.ACTION_UP||action==MotionEvent.ACTION_POINTER_UP){if(id==joystick){joystick=-1;moveX=moveY=stickX=stickY=0;}if(id==other)other=-1;}
@@ -209,3 +215,5 @@ final class GameView extends View implements Choreographer.FrameCallback {
     private void stick(float x,float y){stickX=(x-126)/65;stickY=(y-583)/65;float len=(float)Math.hypot(stickX,stickY);if(len>1){stickX/=len;stickY/=len;}moveX=Math.abs(stickX)<.08?0:stickX;moveY=Math.abs(stickY)<.08?0:stickY;}
     @Override public boolean performClick(){super.performClick();return true;}
 }
+
+

@@ -50,6 +50,10 @@ public final class GameTest {
         check(p.x>=Game.RADIUS,"world boundary respected");
     }
     private static void geometry(){
+        Game trace=human(0);trace.phase=1;trace.players[0].x=40;trace.players[0].y=40;trace.players[1].x=400;trace.players[1].y=40;
+        check(!trace.visible(0,1),"quiet hider beyond ordinary sight stays hidden");
+        trace.players[1].trail=1;check(trace.visible(0,1),"sprint trace exposes hider at longer distance");
+        trace.players[1].trail=0;check(!trace.visible(0,1),"trace expiration restores ordinary concealment");
         for(int map=0;map<2;map++){
             Game g=human(map);check(g.blocks.size()>=12,"real map cover");
             for(Game.Player p:g.players)for(Game.Block b:g.blocks)check(!(p.x>b.x-18&&p.x<b.x+b.w+18&&p.y>b.y-18&&p.y<b.y+b.h+18),"spawn outside cover");

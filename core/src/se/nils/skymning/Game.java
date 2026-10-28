@@ -251,7 +251,9 @@ public final class Game {
         if(viewerId!=0)return true;
         if(phase==0)return false;
         Player viewer=players[viewerId];
-        return dist2(viewer.x,viewer.y,target.x,target.y)<=SIGHT*SIGHT && lineOfSight(viewer.x,viewer.y,target.x,target.y);
+        // A sprint is a tactical tradeoff: its bright trace can be spotted farther away.
+        float sight=target.trail>0?SIGHT+120:SIGHT;
+        return dist2(viewer.x,viewer.y,target.x,target.y)<=sight*sight && lineOfSight(viewer.x,viewer.y,target.x,target.y);
     }
     public boolean lineOfSight(float ax,float ay,float bx,float by) {
         if(!Float.isFinite(ax)||!Float.isFinite(ay)||!Float.isFinite(bx)||!Float.isFinite(by))return false;

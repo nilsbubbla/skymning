@@ -10,6 +10,8 @@ Välj Skogsgläntan eller Gamla stan → välj träning eller lokal Wi-Fi → 20
 Solida hinder blockerar både rörelse och sikt. Sökaren ser gömmare endast inom synavstånd och med fri sikt. Gömmare kan spurta kort, men lämnar då synliga spår. Sökaren har en puls med nedkylning som visar ungefärliga riktningar, utan att avslöja exakta positioner. Utslagna spelare får följa sökaren. Joystick till vänster och en stor förmågeknapp till höger. Sökaren står stilla under gömfasen och kan inte se gömmarnas förflyttningar.
 
 ## Introduktion och progression
+Spurtens spår gör gömmaren synlig på 420 i stället för 300 världsenheters avstånd, fortfarande med krav på fri sikt. Förmågan ger ett val mellan fart och diskretion. Spurt laddas om på 9 sekunder, puls på 12 sekunder.
+
 En inbyggd regelvy och korta instruktioner för aktuell roll och fas. Båda kartorna öppna från början för rättvisa matcher. Lokala rundor och segrar sparas; erfarenhet ger kosmetiska rangnamn, inga spelfördelar. Ingen reklam, inga köp, inga konton.
 
 ## Visuell identitet och ljud
