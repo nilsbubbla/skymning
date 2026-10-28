@@ -1,0 +1,11 @@
+# Beslut
+- Native Canvas: få beroenden, snabb start och tillräckligt för ett litet 2D-spel.
+- Java: installerad JDK, delad spelkärna kan regressionstestas utan Android.
+- Lokal Wi-Fi med manuellt värd-IP: inga konton, molntjänster eller upptäcktsbehörigheter. Telefoner måste kunna nå varandra; vissa gästnät isolerar klienter.
+- Bots i tomma platser och separat offline-träning: spelet ska gå att spela utan fler telefoner.
+- Två noggrant utformade kartor och en förmåga per roll: läsbarhet och spelkänsla framför fler ofärdiga funktioner.
+- Fysisk testning är blockerad av USB-felsökningsdialogen. Fortsätt med lokala tester och emulator om tillgänglig; redovisa begränsningen öppet.
+- USB-dialogen har nu godkänts och fysisk testning pågår.
+- Release signeras med lokal Android-utvecklingsnyckel för direkt installation; butikspublicering ingår inte.
+- Nätverksgästers grafik interpoleras mellan auktoritativa uppdateringar. Regler och fångster avgörs alltid av värden.
+- AI:s patrullminne uppdateras vid 5 Hz, medan rörelse och fångst simuleras vid 60 Hz. Detta minskade desktopkärnans CPU-tid utan att sänka kollisionsupplösningen.

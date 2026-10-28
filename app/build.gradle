@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'se.nils.skymning'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'se.nils.skymning'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '1.0'
+        testInstrumentationRunner 'se.nils.skymning.DeviceRegression'
+    }
+    sourceSets { main.java.srcDirs += '../core/src' }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    // Locally installable release. A store publication should supply a dedicated signing key.
+    buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
+}
